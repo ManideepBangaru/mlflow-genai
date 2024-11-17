@@ -13,13 +13,21 @@ from langchain_text_splitters import CharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import Chroma
 
+# loading environment variables
 load_dotenv()
 
+# load OpenAI API key
 openai_api_key = os.getenv("OPENAI_API_KEY")
-mlflow.set_tracking_uri("http://127.0.0.1:5000")
-rag_experiment = mlflow.set_experiment("rag_experiment")
-run_name = "rag_test"
 
+# set local mlflow as tracking uri
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+
+# define experiment
+rag_experiment = mlflow.set_experiment("rag_experiment")
+# define run name
+run_name = "rag_test_k_5"
+
+# load the docuemnts using langchain document loaders
 loader = WebBaseLoader(
     [
         "https://mlflow.org/docs/latest/index.html",
@@ -29,11 +37,15 @@ loader = WebBaseLoader(
     ]
 )
 
+# initialize loader
 documents = loader.load()
 CHUNK_SIZE = 1000
+
+# define splitter
 text_splitter = CharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=0)
 texts = text_splitter.split_documents(documents)
 
+# Build llm model to inference
 llm = ChatOpenAI(model='gpt-4o-mini',
                  temperature=0.1,
                  top_p=0.1,
@@ -41,9 +53,13 @@ llm = ChatOpenAI(model='gpt-4o-mini',
                  openai_api_key = openai_api_key 
                  )
 
+# Build embedding function
 embedding_function = OpenAIEmbeddings(model = 'text-embedding-3-small')
+
+# Convert the docuements into vector store embeddings using chromadb
 docsearch = Chroma.from_documents(texts, embedding_function)
 
+# Define question answer retrieval chain
 qa = RetrievalQA.from_chain_type(
     llm=llm,
     chain_type="stuff",
@@ -51,8 +67,9 @@ qa = RetrievalQA.from_chain_type(
     return_source_documents=True,
 )
 
-EVALUATION_DATASET_PATH = "https://raw.githubusercontent.com/mlflow/mlflow/master/examples/llms/RAG/static_evaluation_dataset.csv"
+# Evaluation --------------------------------------------------------------------------------------------
 
+EVALUATION_DATASET_PATH = "https://raw.githubusercontent.com/mlflow/mlflow/master/examples/llms/RAG/static_evaluation_dataset.csv"
 synthetic_eval_data = pd.read_csv(EVALUATION_DATASET_PATH)
 
 # Load the static evaluation dataset from disk and deserialize the source and retrieved doc ids

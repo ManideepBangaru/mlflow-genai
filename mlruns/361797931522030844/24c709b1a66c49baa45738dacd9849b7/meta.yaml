@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/361797931522030844/24c709b1a66c49baa45738dacd9849b7/artifacts
+end_time: 1731865285202
+entry_point_name: ''
+experiment_id: '361797931522030844'
+lifecycle_stage: active
+run_id: 24c709b1a66c49baa45738dacd9849b7
+run_name: rag_test
+run_uuid: 24c709b1a66c49baa45738dacd9849b7
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1731865250009
+status: 3
+tags: []
+user_id: manideepbangaru
